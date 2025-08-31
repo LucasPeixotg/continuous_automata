@@ -26,6 +26,7 @@ def normalize_kernel(kernel):
     return kernel
 
 # Create circular kernel using getStructuringElement
+''' Really good one'''
 larger_circle = -create_circular_kernel(
     outer_diameter=41, 
     inner_diameter=31,     # 41 * 0.37
@@ -39,6 +40,37 @@ smaller_circle = create_circular_kernel(
     gaussian_sigma=1.2,
     gaussian_kernel_size=15
 )
+
+
+''' config 2 - also interesting
+larger_circle = -create_circular_kernel(
+    outer_diameter=141, 
+    inner_diameter=91,     # 41 * 0.37
+    gaussian_sigma=10,
+    gaussian_kernel_size=13
+) / 5
+
+smaller_circle = create_circular_kernel(
+    outer_diameter=41, 
+    inner_diameter=15,     # 41 * 0.37
+    gaussian_sigma=0,
+    gaussian_kernel_size=15
+)
+
+
+larger_circle = -create_circular_kernel(
+    outer_diameter=141, 
+    inner_diameter=91,     # 41 * 0.37
+    gaussian_sigma=10,
+    gaussian_kernel_size=13
+) / 2
+
+smaller_circle = create_circular_kernel(
+    outer_diameter=41, 
+    inner_diameter=15,     # 41 * 0.37
+    gaussian_sigma=1,
+    gaussian_kernel_size=15
+)'''
 
 padding = (larger_circle.shape[0] - smaller_circle.shape[0]) // 2
 smaller_circle = np.pad(smaller_circle, pad_width=padding, mode='constant', constant_values=0)
