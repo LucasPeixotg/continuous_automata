@@ -20,9 +20,9 @@ class Grid:
 
         self.colors[lifeform.name] = color_rgb
     
-    def random(self):
+    def random(self, discrete: bool = False):
         for lifeform in self.lifeforms.values():
-            lifeform.randomize_state()
+            lifeform.randomize_state(discrete=discrete)
 
     def update(self):
         _lifeforms = self.lifeforms.values()

@@ -84,11 +84,12 @@ class Disk(Kernel):
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (radius*2, radius*2))
         kernel = kernel.astype(np.float64)
 
-        kernel_radius = (gaussian_kernel_size - 1) / 2
-        truncate = kernel_radius / gaussian_sigma
-        padding_width = ceil(truncate * gaussian_sigma)
+        if gaussian_sigma != 0:
+            kernel_radius = (gaussian_kernel_size - 1) / 2
+            truncate = kernel_radius / gaussian_sigma
+            padding_width = ceil(truncate * gaussian_sigma)
 
-        kernel = np.pad(kernel, pad_width=padding_width, mode='constant', constant_values=0)
+            kernel = np.pad(kernel, pad_width=padding_width, mode='constant', constant_values=0)
         
         super().__init__(cv2.GaussianBlur(kernel, (gaussian_kernel_size, gaussian_kernel_size), gaussian_sigma))
 
@@ -115,29 +116,35 @@ class Ring(Kernel):
         # Subtract inner from outer to create ring
         kernel = outer_kernel - ring_kernel
         
-        # Apply Gaussian blur padding and blurring
-        kernel_radius = (gaussian_kernel_size - 1) / 2
-        truncate = kernel_radius / gaussian_sigma
-        padding_width = ceil(truncate * gaussian_sigma)
+        if gaussian_sigma != 0:
+            # Apply Gaussian blur padding and blurring
+            kernel_radius = (gaussian_kernel_size - 1) / 2
+            truncate = kernel_radius / gaussian_sigma
+            padding_width = ceil(truncate * gaussian_sigma)
 
-        kernel = np.pad(kernel, pad_width=padding_width, mode='constant', constant_values=0)
+            kernel = np.pad(kernel, pad_width=padding_width, mode='constant', constant_values=0)
         
         super().__init__(cv2.GaussianBlur(kernel, (gaussian_kernel_size, gaussian_kernel_size), gaussian_sigma))
 
 
 class Square(Kernel):
     def __init__(self, side_length, *, gaussian_sigma=0.5, gaussian_kernel_size=5):
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (side_length, side_length))
-        kernel = kernel.astype(np.float64)
+        if side_length == 1:
+            kernel = np.ones((1,1))
+            print(kernel)
+            kernel = kernel.astype(np.float64)
+        else:
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (side_length, side_length))
+            kernel = kernel.astype(np.float64)
 
-        kernel_radius = (gaussian_kernel_size - 1) / 2
-        truncate = kernel_radius / gaussian_sigma
-        padding_width = ceil(truncate * gaussian_sigma)
+        if gaussian_sigma != 0:
+            kernel_radius = (gaussian_kernel_size - 1) / 2
+            truncate = kernel_radius / gaussian_sigma
+            padding_width = ceil(truncate * gaussian_sigma)
 
-        kernel = np.pad(kernel, pad_width=padding_width, mode='constant', constant_values=0)
+            kernel = np.pad(kernel, pad_width=padding_width, mode='constant', constant_values=0)
         
         super().__init__(cv2.GaussianBlur(kernel, (gaussian_kernel_size, gaussian_kernel_size), gaussian_sigma))
-
 
 class KernelVisualizer:
     def __init__(self):

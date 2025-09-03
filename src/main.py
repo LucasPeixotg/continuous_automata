@@ -1,7 +1,7 @@
 import cv2
 from Grid import Grid
 from Rule import Rule
-from Kernel import Ring, Disk, KernelVisualizer
+from Kernel import Ring, Kernel, KernelVisualizer
 from LifeForm import LifeForm
 import numpy as np
 
@@ -61,12 +61,12 @@ def create_walking_blob2(name: str) -> LifeForm:
         inner_diameter=31,     # 41 * 0.37
         gaussian_sigma=1.1,
         gaussian_kernel_size=13
-    ) / 4
+    ) / 2
 
     kernel.normalize()
 
     def func(x):
-        diff = (x - 0.101) / 0.08
+        diff = (x - 0.11) / 0.08
         return 2 * np.exp(-(diff**2) / 2) - 1
 
     rule = Rule(0.05, kernel, func)
@@ -75,87 +75,41 @@ def create_walking_blob2(name: str) -> LifeForm:
     form.add_rule(name, rule)
     return form
 
-def create_blue_link(name: str, form1, form2) -> LifeForm:
-    kernel = Ring(
-        outer_diameter=21,
-        inner_diameter=15,     # 41 * 0.37
-        gaussian_sigma=1.2,
-        gaussian_kernel_size=15
-    ) - Ring(
-        outer_diameter=41, 
-        inner_diameter=31,     # 41 * 0.37
-        gaussian_sigma=1.1,
-        gaussian_kernel_size=13
-    ) / 2
-
-    kernel.normalize()
-
-    def func(x):
-        diff = (x - 0.01) / 0.09
-        return 2 * np.exp(-(diff**2) / 2) - 1
-
-    rule = Rule(0.20, kernel, func)
-    form3 = LifeForm(name, GRID_SIZE)
-    form3.add_rule(name, rule, 0)
-    
-    def func31(x):
-        diff = (x - 0.09) / 0.08
-        return 2 * np.exp(-(diff**2) / 2) - 1
-
-    kernel31 = kernel
-
-    rule = Rule(0.05, kernel31, func31)
-    #form3.add_rule(form1.name, rule, -0.2)
-    #form3.add_rule(form2.name, rule, 1)
-    form3.add_rule(form1.name, rule)
-
-    return form3
-
-def create_blue_link(name: str, form1, form2) -> LifeForm:
-    kernel = Ring(
-        outer_diameter=21,
-        inner_diameter=15,     # 41 * 0.37
-        gaussian_sigma=1.2,
-        gaussian_kernel_size=15
-    ) - Ring(
-        outer_diameter=41, 
-        inner_diameter=31,     # 41 * 0.37
-        gaussian_sigma=1.1,
-        gaussian_kernel_size=13
-    ) / 2
-
-    kernel.normalize()
-
-    def func(x):
-        diff = (x - 0.01) / 0.09
-        return 2 * np.exp(-(diff**2) / 2) - 1
-
-    rule = Rule(0.05, kernel, func)
-    form3 = LifeForm(name, GRID_SIZE)
-    form3.add_rule(name, rule, 0)
-    
-    def func31(x):
-        diff = (x - 0.09) / 0.08
-        return 2 * np.exp(-(diff**2) / 2) - 1
-
-    kernel31 = kernel
-
-    rule = Rule(0.05, kernel31, func31)
-    #form3.add_rule(form1.name, rule, -0.2)
-    #form3.add_rule(form2.name, rule, 1)
-    form3.add_rule(form1.name, rule)
-
-    return form3
 
 if __name__ == "__main__":
-    form1 = create_walking_blob('form1')
-    form2 = create_walking_blob2('form2')
+    underpopulation = 2
+    overpopulation = 3
+    reproduction = 3
+
+    def growth_func(x: np.ndarray):
+        grid = np.zeros(GRID_SIZE)
+        grid = grid - (x < underpopulation).astype(int)
+        grid = grid - (x > overpopulation).astype(int)
+        grid = grid + (x == reproduction).astype(int)
+        print(grid)
+
+        return grid.astype(np.float64)
+    
+    conway_form = LifeForm("conways", GRID_SIZE)
+
+    arr = np.array([
+        [1, 1, 1],
+        [1, 0, 1],
+        [1, 1, 1]
+    ], dtype=np.float64)
+
+    kernel = Kernel(arr)
+    rule = Rule(1, kernel, growth_func)
+    conway_form.add_rule(conway_form.name, rule, 1)
+
+    kv = KernelVisualizer()
+    kv.add_kernel("conway", kernel)
+    kv.visualize_kernels()
 
     grid = Grid(GRID_SIZE)
 
-    grid.add_lifeform(form1, "#39BFE8")
-    #grid.add_lifeform(form2, "#e3c749")
+    grid.add_lifeform(conway_form, "#FFFFFF")
     #grid.add_lifeform(form3, "#0000FF")
-    grid.random()
+    grid.random(discrete=True)
 
     run(grid)

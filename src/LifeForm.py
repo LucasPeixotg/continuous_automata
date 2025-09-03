@@ -13,9 +13,11 @@ class LifeForm:
         self._rules: Dict[str, Rule] = {}    # mapping lifeform name → Rule
         self._weights: Dict[str, float] = {} # mapping lifeform name → weight
 
-    def randomize_state(self):
+    def randomize_state(self, discrete: bool = False):
         self.state = np.random.random(self._grid_size)
         self.state = self.state.astype(dtype=np.float64)
+        if discrete:
+            self.state = (self.state > 0.5).astype(int).astype(np.float64)
 
     def add_rule(self, lifeform_name: str, rule: Rule, weight: float=1.0):
         self._weights[lifeform_name] = weight
