@@ -94,14 +94,15 @@ class AutomataConfigLoader:
                        gaussian_kernel_size=gaussian_kernel_size)
         
         elif kernel_type == 'square':
-            side_length = kernel_config['side_length']
-            gaussian_sigma = kernel_config.get('gaussian_sigma', 0.5)
-            gaussian_kernel_size = kernel_config.get('gaussian_kernel_size', 5)
-            
-            # Check for custom array
+            # Check for custom array first
             if 'custom_array' in kernel_config:
                 arr = np.array(kernel_config['custom_array'], dtype=np.float64)
                 return Kernel(arr)
+            
+            # Otherwise use side_length
+            side_length = kernel_config['side_length']
+            gaussian_sigma = kernel_config.get('gaussian_sigma', 0.5)
+            gaussian_kernel_size = kernel_config.get('gaussian_kernel_size', 5)
             
             return Square(side_length, gaussian_sigma=gaussian_sigma,
                          gaussian_kernel_size=gaussian_kernel_size)
@@ -244,7 +245,8 @@ class AutomataConfigLoader:
         return self.config.get('display', {
             'window_name': 'Continuous Automata',
             'quit_key': 'q',
-            'show_fps': True
+            'show_fps': True,
+            'scale': 1.0
         })
     
     def get_simulation_config(self) -> Dict[str, Any]:
@@ -263,6 +265,7 @@ def run(grid: Grid, display_config: Dict[str, Any]):
     window_name = display_config.get('window_name', 'Continuous Automata')
     quit_key = display_config.get('quit_key', 'q')
     show_fps = display_config.get('show_fps', True)
+    scale = display_config.get('scale', 1.0)
     
     import time
     frame_count = 0
@@ -274,6 +277,12 @@ def run(grid: Grid, display_config: Dict[str, Any]):
         
         # Display
         frame = grid.calculate_displayable_version()
+        
+        # Scale the frame if needed
+        if scale != 1.0:
+            new_width = int(frame.shape[1] * scale)
+            new_height = int(frame.shape[0] * scale)
+            frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_NEAREST)
         
         # Show FPS
         if show_fps:
@@ -297,7 +306,7 @@ if __name__ == "__main__":
     import sys
     
     # Get config file path from command line or use default
-    config_path = sys.argv[1] if len(sys.argv) > 1 else "automata.yml"
+    config_path = sys.argv[1] if len(sys.argv) > 1 else "automata_config.yml"
     
     print(f"Loading configuration from: {config_path}")
     loader = AutomataConfigLoader(config_path)

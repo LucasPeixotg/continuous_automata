@@ -2,6 +2,18 @@ grid:
   width: 1080
   height: 720
 
+functions:
+  conway_rules:
+    type: conway
+    underpopulation: 2
+    overpopulation: 3
+    reproduction: 3
+
+kernels:
+  conway_kernel:
+    type: square
+    custom_array: [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+
 lifeforms:
   conway:
     color: "#FF0000"
@@ -10,16 +22,9 @@ lifeforms:
       conway:
         dt: 1.0
         kernel:
-          type: square
-          side_length: 3
-          gaussian_sigma: 0.0
-          gaussian_kernel_size: 1
-          custom_array: [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+          ref: conway_kernel
         func:
-          type: conway
-          underpopulation: 2
-          overpopulation: 3
-          reproduction: 3
+          ref: conway_rules
         weight: 1.0
 
   conway2:
@@ -29,16 +34,9 @@ lifeforms:
       conway2:
         dt: 1.0
         kernel:
-          type: square
-          side_length: 3
-          gaussian_sigma: 0.0
-          gaussian_kernel_size: 1
-          custom_array: [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+          ref: conway_kernel
         func:
-          type: conway
-          underpopulation: 2
-          overpopulation: 3
-          reproduction: 3
+          ref: conway_rules
         weight: 1.0
 
 display:
