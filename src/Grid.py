@@ -36,12 +36,21 @@ class Grid:
         h, w = self.grid_size
         # Start with a black image
         image = np.zeros((h, w, 3), dtype=np.float32)
-
+        
+        # Track total intensity at each pixel to calculate mean
+        total_intensity = np.zeros((h, w), dtype=np.float32)
+        
         for name, lifeform in self.lifeforms.items():
-            # Broadcast lifeform.state to 3 channels and multiply by color
-            print(f"adding {name} : {np.max(lifeform.state)}")
-            image += lifeform.state[:, :, None] * self.colors[name][None, None, :]
-
+            # Add weighted color contribution
+            intensity = lifeform.state.astype(np.float32)
+            image += intensity[:, :, None] * self.colors[name][None, None, :]
+            total_intensity += intensity
+        
+        # Calculate mean color by dividing by total intensity
+        # Avoid division by zero
+        mask = total_intensity > 0
+        image[mask] = image[mask] / total_intensity[mask, None]
+        
         # Clip to [0,1] and convert to uint8 for OpenCV
         image = np.clip(image, 0, 1)
         return (image * 255).astype(np.uint8)
